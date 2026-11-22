@@ -29,7 +29,7 @@
     position: absolute;
     inset: 0;
 
-    background-image: url("./assets/logoRMS.png");
+    background-image: url("../assets/logoRMS.png");
     background-repeat: no-repeat;
     background-position: center;
     background-size: 800px;
