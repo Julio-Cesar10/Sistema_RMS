@@ -52,3 +52,15 @@ td a { color: var(--azul2); font-weight: bold; }
 .historico li:last-child { border: 0; }
 .historico time { color: #6b7686; margin-right: 8px; }
 @media (max-width: 800px) { .app { flex-direction: column; } .menu { width: 100%; height: auto; position: static; } .filtros, .formulario { grid-template-columns: 1fr; } }
+.menu { transition: width .2s ease; overflow: hidden; }
+.menu img { transition: width .2s ease; }
+.menu a, .menu .sair { display: flex; align-items: center; gap: 12px; }
+.menu .sair { justify-content: center; }
+.menu .alternar { align-self: flex-start; background: none; border: 0; color: #cfd6e4; padding: 4px; display: flex; }
+.menu .alternar:hover { color: #fff; }
+.menu.recolhido { width: 72px; padding-left: 12px; padding-right: 12px; }
+.menu.recolhido img { width: 44px; margin: 0 auto; }
+.menu.recolhido span { display: none; }
+.menu.recolhido a, .menu.recolhido .sair { justify-content: center; padding: 10px 0; }
+.menu.recolhido .alternar { align-self: center; }
+@media (max-width: 800px) { .menu, .menu.recolhido { width: 100%; } }
