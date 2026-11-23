@@ -25,11 +25,10 @@ const itens = [
 
 export default function Layout() {
   const navigate = useNavigate();
-  const [aberto, setAberto] = useState(() => localStorage.getItem("rms_menu") !== "fechado");
+  const [aberto, setAberto] = useState(false);
   if (!sessionStorage.getItem("rms_auth")) return <Navigate to="/login" replace />;
 
   const alternar = () => {
-    localStorage.setItem("rms_menu", aberto ? "fechado" : "aberto");
     setAberto(!aberto);
   };
 

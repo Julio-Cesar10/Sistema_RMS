@@ -64,3 +64,4 @@ td a { color: var(--azul2); font-weight: bold; }
 .menu.recolhido a, .menu.recolhido .sair { justify-content: center; padding: 10px 0; }
 .menu.recolhido .alternar { align-self: center; }
 @media (max-width: 800px) { .menu, .menu.recolhido { width: 100%; } }
+.menu img { width: 110px; margin: 0 auto; }
