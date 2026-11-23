@@ -1,0 +1,17 @@
+header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 15px 30px;
+    background-color: #111C30;
+}
+
+header img {
+    width: 50px;
+    height: 50px;
+    object-fit: contain;
+    box-shadow: none;
+    filter: none;
+    background: transparent;
+}
+
