@@ -171,3 +171,10 @@
         display: none;        
     }
 }
+
+.erro-login{
+    color: #b03030;
+    font-size: 14px;
+    margin: 0 0 12px;
+    text-align: center;
+}

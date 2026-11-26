@@ -1,44 +1,91 @@
-import { useTitulo } from "../services/titulo.js";
-import { useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { Etiqueta, Status } from "../components/Ui.jsx";
-import { fmtData, fmtDataHora } from "../services/formatar.js";
+import { api } from "../services/api.js";
 import { useProtocolos } from "../services/contexto.js";
+import { fmtData, fmtDataHora } from "../services/formatar.js";
+import { useTitulo } from "../services/titulo.js";
 
 export default function Processo() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { buscar, registrarAcesso, anexar, removerDoc, remover } = useProtocolos();
-  const p = buscar(id);
+  const { remover } = useProtocolos();
+  const [p, setP] = useState(null);
+  const [erro, setErro] = useState("");
   useTitulo(p ? `Processo ${p.numero}` : "Processo");
 
-  useEffect(() => {
-    registrarAcesso(Number(id));
-  }, [id, registrarAcesso]);
+  const carregar = useCallback(
+    async (registrarAcesso = true) => {
+      try {
+        setP(await api.get(`/api/processos/${id}${registrarAcesso ? "" : "?acesso=0"}`));
+        setErro("");
+      } catch (e) {
+        setErro(e.message);
+      }
+    },
+    [id]
+  );
 
-  if (!p) return <p className="vazio">Protocolo não encontrado.</p>;
+  useEffect(() => {
+    let ativo = true;
+    api
+      .get(`/api/processos/${id}`)
+      .then((dados) => {
+        if (ativo) setP(dados);
+      })
+      .catch((e) => {
+        if (ativo) setErro(e.message);
+      });
+    return () => {
+      ativo = false;
+    };
+  }, [id]);
+
+  const tentar = async (acao) => {
+    try {
+      await acao();
+      setErro("");
+    } catch (e) {
+      setErro(e.message);
+    }
+  };
+
+  if (!p) return <p className="vazio">{erro || "Carregando..."}</p>;
 
   const excluir = () => {
     if (window.confirm(`Excluir o protocolo ${p.numero}?`)) {
-      remover(p.id);
-      navigate("/processos");
+      tentar(async () => {
+        await remover(p.id);
+        navigate("/processos");
+      });
     }
   };
 
   const excluirDoc = (d) => {
-    if (window.confirm(`Remover o documento ${d.nome}?`)) removerDoc(p.id, d.id);
+    if (window.confirm(`Remover o documento ${d.nome}?`)) {
+      tentar(async () => {
+        await api.del(`/api/documentos/${d.id}`);
+        await carregar(false);
+      });
+    }
   };
 
   const escolher = (e) => {
     const arquivo = e.target.files[0];
-    if (arquivo) anexar(p.id, arquivo);
     e.target.value = "";
+    if (!arquivo) return;
+    const dados = new FormData();
+    dados.append("arquivo", arquivo);
+    tentar(async () => {
+      await api.post(`/api/processos/${p.id}/documentos`, dados);
+      await carregar(false);
+    });
   };
 
   const info = [
     ["Status", <Status valor={p.status} />],
     ["Responsáveis", p.responsaveis.length ? p.responsaveis.map((n) => <Etiqueta key={n} nome={n} />) : "—"],
-    ["Editado por", p.editadoPor],
+    ["Editado por", p.editadoPor || "—"],
     ["Data de movimentação", fmtData(p.dataMovimentacao)],
     ["Prazo de entrega", fmtData(p.prazo)],
     ["Data de criação", fmtDataHora(p.criadoEm)],
@@ -57,6 +104,7 @@ export default function Processo() {
           <button className="btn perigo" type="button" onClick={excluir}>Excluir</button>
         </div>
       </div>
+      {erro && <p className="erros">{erro}</p>}
 
       <h2>Informações do processo</h2>
       <dl className="info">
@@ -85,7 +133,7 @@ export default function Processo() {
                   <td>{d.tipo}</td>
                   <td>{fmtDataHora(d.incluidoEm)}</td>
                   <td className="acoes">
-                    <a href={d.url} target="_blank" rel="noreferrer">Abrir</a>
+                    <a href={`/api/documentos/${d.id}/arquivo`} target="_blank" rel="noreferrer">Abrir</a>
                     <button type="button" className="link-perigo" onClick={() => excluirDoc(d)}>Remover</button>
                   </td>
                 </tr>

@@ -22,3 +22,12 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+.env
+frontend/dist
+*.zip
+dados/
+*.log
+backend/storage/
+backend/servidor.pid
+backend/parar.txt

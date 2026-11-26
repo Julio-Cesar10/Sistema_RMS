@@ -1,10 +1,14 @@
 import { useTitulo } from "../services/titulo.js";
+import { useEffect } from "react";
 import { TabelaProtocolos } from "../components/Ui.jsx";
 import { STATUS, useProtocolos } from "../services/contexto.js";
 
 export default function Inicio() {
   useTitulo("Página inicial");
-  const { lista } = useProtocolos();
+  const { lista, carregar } = useProtocolos();
+  useEffect(() => {
+    carregar();
+  }, [carregar]);
   const recentes = lista
     .filter((p) => p.ultimoAcesso)
     .sort((a, b) => b.ultimoAcesso.localeCompare(a.ultimoAcesso))

@@ -1,5 +1,5 @@
 import { useTitulo } from "../services/titulo.js";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { Etiqueta } from "../components/Ui.jsx";
 import { STATUS, useProtocolos } from "../services/contexto.js";
@@ -45,7 +45,7 @@ function CampoResponsaveis({ valor, onChange, sugestoes }) {
   );
 }
 
-export default function ProtocoloForm() {
+function Formulario() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { lista, buscar, salvar } = useProtocolos();
@@ -61,18 +61,21 @@ export default function ProtocoloForm() {
 
   if (id && !existente) return <p className="vazio">Protocolo não encontrado.</p>;
 
-  const enviar = (e) => {
+  const enviar = async (e) => {
     e.preventDefault();
     const er = [];
     if (!f.numero.trim()) er.push("Informe o número do protocolo.");
     else if (lista.some((p) => p.numero === f.numero.trim() && p.id !== existente?.id)) er.push("Já existe um protocolo com este número.");
     if (!f.titulo.trim()) er.push("Informe o título.");
     if (!f.prazo) er.push("Informe o prazo de entrega.");
-    else if (f.prazo < (existente ? existente.criadoEm : new Date().toISOString()).slice(0, 10)) er.push("O prazo não pode ser anterior à data de criação.");
     setErros(er);
     if (er.length) return;
     const dados = { numero: f.numero.trim(), titulo: f.titulo.trim(), partes: f.partes, descricao: f.descricao, status: f.status, dataMovimentacao: f.dataMovimentacao, prazo: f.prazo, responsaveis: f.responsaveis };
-    navigate(`/processos/${salvar(dados, existente?.id)}`);
+    try {
+      navigate(`/processos/${await salvar(dados, existente?.id)}`);
+    } catch (x) {
+      setErros([x.message]);
+    }
   };
 
   return (
@@ -100,4 +103,13 @@ export default function ProtocoloForm() {
       </form>
     </>
   );
+}
+
+export default function ProtocoloForm() {
+  const { carregando, carregar } = useProtocolos();
+  useEffect(() => {
+    carregar();
+  }, [carregar]);
+  if (carregando) return <p className="vazio">Carregando...</p>;
+  return <Formulario />;
 }

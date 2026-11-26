@@ -1,0 +1,17 @@
+{
+  "name": "rms-backend",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node --env-file=.env src/server.js",
+    "dev": "node --watch --env-file=.env src/server.js",
+    "db:init": "node --env-file=.env scripts/init-db.js"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "express": "^4.21.2",
+    "multer": "^2.0.2",
+    "mysql2": "^3.11.0"
+  }
+}

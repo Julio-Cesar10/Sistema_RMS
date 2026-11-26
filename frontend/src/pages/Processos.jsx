@@ -1,12 +1,15 @@
 import { useTitulo } from "../services/titulo.js";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { TabelaProtocolos } from "../components/Ui.jsx";
 import { STATUS, useProtocolos } from "../services/contexto.js";
 
 export default function Processos() {
   useTitulo("Processos");
-  const { lista } = useProtocolos();
+  const { lista, carregar } = useProtocolos();
+  useEffect(() => {
+    carregar();
+  }, [carregar]);
   const [busca, setBusca] = useState("");
   const [status, setStatus] = useState("");
   const [resp, setResp] = useState("");

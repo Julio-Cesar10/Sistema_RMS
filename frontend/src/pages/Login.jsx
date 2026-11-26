@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { api } from "../services/api.js";
 import { useTitulo } from "../services/titulo.js";
 import "./Login.css";
 import logo from "../assets/emblema-rms.png";
@@ -8,11 +9,19 @@ function Login() {
     useTitulo("RMS");
     const navigate = useNavigate();
     const [mostrarSenha, setMostrarSenha] = useState(false);
+    const [usuario, setUsuario] = useState("");
+    const [senha, setSenha] = useState("");
+    const [erro, setErro] = useState("");
 
-    const entrar = (e) => {
+    const entrar = async (e) => {
         e.preventDefault();
-        sessionStorage.setItem("rms_auth", "1");
-        navigate("/inicio");
+        try {
+            await api.post("/api/login", { usuario, senha });
+            sessionStorage.setItem("rms_auth", "1");
+            navigate("/inicio");
+        } catch (x) {
+            setErro(x.message);
+        }
     };
 
     return (
@@ -23,8 +32,8 @@ function Login() {
                 <p className="subtitulo">Entre com seus dados para continuar.</p>
 
                 <form onSubmit={entrar}>
-                    <label htmlFor="email">E-mail</label>
-                    <input type="email" id="email" placeholder="Digite seu e-mail" />
+                    <label htmlFor="usuario">Usuário</label>
+                    <input type="text" id="usuario" placeholder="Digite seu usuário" autoComplete="username" value={usuario} onChange={(e) => setUsuario(e.target.value)} />
 
                     <label htmlFor="senha">Senha</label>
 
@@ -33,6 +42,9 @@ function Login() {
                             type={mostrarSenha ? "text" : "password"}
                             id="senha"
                             placeholder="Digite sua senha"
+                            autoComplete="current-password"
+                            value={senha}
+                            onChange={(e) => setSenha(e.target.value)}
                         />
 
                         <button
@@ -43,6 +55,8 @@ function Login() {
                             {mostrarSenha ? "Ocultar" : "Mostrar"}
                         </button>
                     </div>
+
+                    {erro && <p className="erro-login" role="alert">{erro}</p>}
 
                     <button type="submit">Entrar</button>
                 </form>
