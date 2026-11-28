@@ -238,6 +238,21 @@ app.delete("/api/processos/:id", rota(async (req, res) => {
   res.json({ ok: true });
 }));
 
+app.post("/api/processos/:id/status", rota(async (req, res) => {
+  const id = Number(req.params.id);
+  const novo = req.body.status;
+  if (!["deferido", "arquivado"].includes(novo)) return res.status(400).json({ erro: "Status inválido." });
+  const [[atual]] = await pool.query("SELECT status FROM processos WHERE id = ?", [id]);
+  if (!atual) return res.status(404).json({ erro: "Protocolo não encontrado." });
+  if (atual.status !== "em aberto") return res.status(409).json({ erro: "Só é possível arquivar ou encerrar protocolos em aberto." });
+  const agora = new Date();
+  await transacao(async (con) => {
+    await con.query("UPDATE processos SET status = ?, salvo_em = ?, editado_por = ? WHERE id = ?", [novo, agora, req.usuario, id]);
+    await con.query("INSERT INTO historico (processo_id, acao, campos_alterados, data_hora) VALUES (?, ?, ?, ?)", [id, novo === "arquivado" ? "Arquivamento" : "Encerramento", `Status alterado de em aberto para ${novo}`, agora]);
+  });
+  res.json({ ok: true });
+}));
+
 app.post("/api/processos/:id/documentos", upload.single("arquivo"), rota(async (req, res) => {
   const id = Number(req.params.id);
   if (!req.file) return res.status(400).json({ erro: "Nenhum arquivo enviado." });

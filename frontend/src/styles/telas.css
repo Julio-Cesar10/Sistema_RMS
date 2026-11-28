@@ -82,3 +82,6 @@ td a { color: var(--azul2); font-weight: bold; }
 .painel-notif li span { font-size: .85rem; color: #6b7686; }
 .painel-notif .vazio { padding: 16px 14px; }
 @media (max-width: 800px) { .painel-notif, .painel-notif.recolhido { left: 8px; right: 8px; width: auto; top: 60px; } }
+.btn.ok { background: #1d6b3a; }
+.btn.ok:hover { background: #247f46; }
+.acoes { flex-wrap: wrap; }

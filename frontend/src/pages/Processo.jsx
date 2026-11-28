@@ -61,6 +61,17 @@ export default function Processo() {
     }
   };
 
+  const mudarStatus = (novo) => {
+    const pergunta = novo === "arquivado" ? `Arquivar o protocolo ${p.numero}?` : `Encerrar o protocolo ${p.numero} como deferido?`;
+    if (window.confirm(pergunta)) {
+      tentar(async () => {
+        await api.post(`/api/processos/${p.id}/status`, { status: novo });
+        await carregar(false);
+        window.dispatchEvent(new Event("rms:atualizar"));
+      });
+    }
+  };
+
   const excluirDoc = (d) => {
     if (window.confirm(`Remover o documento ${d.nome}?`)) {
       tentar(async () => {
@@ -100,6 +111,12 @@ export default function Processo() {
       <div className="topo">
         <h1>{p.numero} · {p.titulo}</h1>
         <div className="acoes">
+          {p.status === "em aberto" && (
+            <>
+              <button className="btn sec" type="button" onClick={() => mudarStatus("arquivado")}>Arquivar</button>
+              <button className="btn ok" type="button" onClick={() => mudarStatus("deferido")}>Encerrar (deferido)</button>
+            </>
+          )}
           <Link className="btn" to={`/processos/${p.id}/editar`}>Editar</Link>
           <button className="btn perigo" type="button" onClick={excluir}>Excluir</button>
         </div>

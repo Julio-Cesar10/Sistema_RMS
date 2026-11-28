@@ -29,9 +29,11 @@ export default function Notificacoes({ recolhido }) {
         .catch(() => {});
     buscar();
     const timer = setInterval(buscar, 60000);
+    window.addEventListener("rms:atualizar", buscar);
     return () => {
       ativo = false;
       clearInterval(timer);
+      window.removeEventListener("rms:atualizar", buscar);
     };
   }, [pathname]);
 
@@ -66,7 +68,11 @@ export default function Notificacoes({ recolhido }) {
   };
 
   const hoje = hojeLocal();
-  const texto = (n) => (n.prazo === hoje ? "O prazo de entrega é hoje" : `Prazo venceu em ${fmtData(n.prazo)}`);
+  const diasDeAtraso = (prazo) => Math.round((new Date(`${hoje}T00:00:00Z`) - new Date(`${prazo}T00:00:00Z`)) / 86400000);
+  const texto = (n) => {
+    const d = diasDeAtraso(n.prazo);
+    return d <= 0 ? "O prazo de entrega é hoje" : `Em atraso há ${d} ${d === 1 ? "dia" : "dias"} (prazo: ${fmtData(n.prazo)})`;
+  };
 
   return (
     <>
