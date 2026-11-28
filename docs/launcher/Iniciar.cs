@@ -56,9 +56,18 @@ class Iniciar
         }
     }
 
+    static string Raiz()
+    {
+        string pasta = AppDomain.CurrentDomain.BaseDirectory;
+        if (Directory.Exists(Path.Combine(pasta, "backend"))) return pasta;
+        DirectoryInfo pai = Directory.GetParent(pasta.TrimEnd(Path.DirectorySeparatorChar));
+        if (pai != null && Directory.Exists(Path.Combine(pai.FullName, "backend"))) return pai.FullName + Path.DirectorySeparatorChar;
+        return pasta;
+    }
+
     static void Main()
     {
-        string raiz = AppDomain.CurrentDomain.BaseDirectory;
+        string raiz = Raiz();
         string backend = Path.Combine(raiz, "backend");
         string frontend = Path.Combine(raiz, "frontend");
 

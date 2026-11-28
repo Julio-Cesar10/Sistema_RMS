@@ -30,3 +30,5 @@ dados/
 backend/storage/
 backend/servidor.pid
 backend/parar.txt
+
+*.exe

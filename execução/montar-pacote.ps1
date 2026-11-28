@@ -3,7 +3,7 @@ param(
 )
 
 $ErrorActionPreference = "Stop"
-$raiz = $PSScriptRoot
+$raiz = Split-Path -Parent $PSScriptRoot
 $saida = Join-Path $env:TEMP "SistemaRMS-pacote\SistemaRMS"
 $zip = Join-Path ([Environment]::GetFolderPath("Desktop")) "SistemaRMS.zip"
 $porta = 3307
@@ -64,7 +64,7 @@ Copy-Item "$raiz\backend\package.json", "$raiz\backend\package-lock.json" "$said
 Executar "cmd.exe" "/c npm ci --omit=dev" "$saida\backend" $false
 Copiar "$raiz\frontend\dist" "$saida\frontend\dist" @()
 Copy-Item "$raiz\database\schema.sql" "$saida\database"
-Copy-Item "$raiz\Sistema RMS.exe", "$raiz\Encerrar Sistema RMS.exe" $saida
+Copy-Item "$PSScriptRoot\Sistema RMS.exe", "$PSScriptRoot\Encerrar Sistema RMS.exe" $saida
 $leia = @'
 SISTEMA RMS - Gestao de Protocolos
 Roseno, Morais & Sexto Advogados
@@ -133,3 +133,4 @@ $tamanho = [math]::Round((Get-Item $zip).Length / 1MB)
 Write-Host ""
 Remove-Item (Split-Path -Parent $saida) -Recurse -Force
 Write-Host "Pronto! Arquivo para enviar (na Area de Trabalho): $zip ($tamanho MB)"
+
